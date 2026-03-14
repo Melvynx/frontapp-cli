@@ -1,92 +1,154 @@
 ---
 name: frontapp
-description: "Manage Front via CLI - conversations, inboxes, messages, contacts, tags. Use when user mentions 'frontapp', 'front', 'team inbox', 'customer conversations', 'shared inbox', or wants to interact with the Front API."
+description: "Manage Front (shared inbox) via CLI - conversations, inboxes, messages, contacts, tags, teammates, channels, accounts, events, comments. Use when user mentions 'front', 'frontapp', 'shared inbox', 'team inbox', 'customer email', 'support inbox', 'help@', 'reply to customer', 'check front', 'front conversations', or wants to read/send/manage customer communications."
 category: customer-communication
 ---
 
 # frontapp-cli
 
+Front shared inbox CLI. Read conversations, reply to customers, manage contacts, and monitor team activity.
+
 ## Setup
 
-If `frontapp-cli` is not found, install and build it:
 ```bash
 bun --version || curl -fsSL https://bun.sh/install | bash
 npx api2cli bundle frontapp
 npx api2cli link frontapp
 ```
 
-`api2cli link` adds `~/.local/bin` to PATH automatically. The CLI is available in the next command.
-
 Always use `--json` flag when calling commands programmatically.
 
 ## Authentication
 
 ```bash
-frontapp-cli auth set "your-token"
+frontapp-cli auth set "your-front-api-token"
 frontapp-cli auth test
+```
+
+**Important:** Front uses company-specific API URLs (e.g., `companyname.api.frontapp.com`). The base URL is configured in `src/lib/config.ts`.
+
+## When to Use
+
+- **Check inbox**: "any new emails in Front?" → `conversations list --status open`
+- **Read a conversation**: user shares a ticket/conversation → `conversations get <id>` + `messages list <id>`
+- **Reply to customer**: "reply to this email" → `messages reply <cnv-id> --body "..."`
+- **Send new email**: "email this person from Front" → `messages send <channel-id> --to email --body "..."`
+- **Internal notes**: "add a note" → `comments create <cnv-id> --body "..."`
+- **Find a contact**: "who is this person?" → `contacts list` or `contacts get <id>`
+- **Check team**: "who's on the team?" → `teammates list`
+- **See channels**: "what email addresses do we have?" → `channels list`
+
+## Common Workflows
+
+### Triage inbox
+```bash
+# Get open conversations
+frontapp-cli conversations list --status open --json
+
+# Read a specific conversation
+frontapp-cli messages list cnv_abc123 --json
+
+# Reply
+frontapp-cli messages reply cnv_abc123 --body "Thanks for reaching out..." --json
+
+# Archive
+frontapp-cli conversations update cnv_abc123 --status archived --json
+```
+
+### Send outbound email
+```bash
+# Find the right channel (email address to send from)
+frontapp-cli channels list --json
+
+# Send from that channel
+frontapp-cli messages send cha_xyz --to customer@example.com --subject "Hello" --body "<p>Your message</p>" --json
+```
+
+### Monitor activity
+```bash
+# Recent conversations
+frontapp-cli conversations list --limit 10 --json
+
+# Activity timeline for a conversation
+frontapp-cli events list cnv_abc123 --json
 ```
 
 ## Resources
 
 ### conversations
-
 | Command | Description |
 |---------|-------------|
-| `frontapp-cli conversations list --json` | List all conversations |
-| `frontapp-cli conversations list --status open --json` | Filter conversations by status |
-| `frontapp-cli conversations list --limit 25 --json` | Limit results per page |
-| `frontapp-cli conversations list --page-token <token> --json` | Paginate conversations |
-| `frontapp-cli conversations list --fields id,subject,status --json` | Select specific columns |
-| `frontapp-cli conversations get <id> --json` | Get conversation details |
-| `frontapp-cli conversations update <id> --status archived --json` | Update conversation status |
-| `frontapp-cli conversations update <id> --assignee user@example.com --json` | Assign conversation |
-| `frontapp-cli conversations update <id> --assignee none --json` | Remove assignment |
-| `frontapp-cli conversations update <id> --tags billing,urgent --json` | Set conversation tags |
+| `conversations list [--status open\|archived] [--limit N]` | List conversations |
+| `conversations get <id>` | Get conversation details |
+| `conversations update <id> --status archived` | Archive conversation |
+| `conversations update <id> --assignee user@email.com` | Assign to teammate |
+| `conversations update <id> --assignee none` | Unassign |
+| `conversations update <id> --tags billing,urgent` | Set tags |
 
 ### inboxes
-
 | Command | Description |
 |---------|-------------|
-| `frontapp-cli inboxes list --json` | List all inboxes |
-| `frontapp-cli inboxes list --fields id,name --json` | Select specific columns |
-| `frontapp-cli inboxes get <id> --json` | Get inbox details |
-| `frontapp-cli inboxes conversations <id> --json` | List conversations in inbox |
-| `frontapp-cli inboxes conversations <id> --status open --json` | Filter inbox conversations |
-| `frontapp-cli inboxes conversations <id> --limit 10 --json` | Limit inbox results |
-| `frontapp-cli inboxes conversations <id> --page-token <token> --json` | Paginate inbox conversations |
+| `inboxes list` | List all inboxes |
+| `inboxes get <id>` | Get inbox details |
+| `inboxes conversations <id> [--status open]` | List conversations in inbox |
 
 ### messages
-
 | Command | Description |
 |---------|-------------|
-| `frontapp-cli messages list <cnv-id> --json` | List messages in conversation |
-| `frontapp-cli messages list <cnv-id> --limit 5 --json` | Limit message results |
-| `frontapp-cli messages list <cnv-id> --page-token <token> --json` | Paginate messages |
-| `frontapp-cli messages list <cnv-id> --fields id,body,author_id --json` | Select columns |
-| `frontapp-cli messages send <cha-id> --to user@example.com --body "Hello!" --json` | Send message from channel |
-| `frontapp-cli messages send <cha-id> --to a@b.com,c@d.com --subject "Hi" --body "<p>Content</p>" --json` | Send with subject |
-| `frontapp-cli messages reply <cnv-id> --body "Thanks!" --json` | Reply to conversation |
-| `frontapp-cli messages reply <cnv-id> --body "Internal note" --type note --json` | Add internal note |
+| `messages list <cnv-id> [--limit N]` | List messages in conversation |
+| `messages send <channel-id> --to email --body "text"` | Send new message |
+| `messages send <channel-id> --to a@b.com --subject "Hi" --body "<p>HTML</p>"` | Send with subject + HTML |
+| `messages reply <cnv-id> --body "text"` | Reply to conversation |
+| `messages reply <cnv-id> --body "note" --type note` | Add internal note via reply |
 
 ### contacts
-
 | Command | Description |
 |---------|-------------|
-| `frontapp-cli contacts list --json` | List all contacts |
-| `frontapp-cli contacts list --limit 50 --json` | Limit contact results |
-| `frontapp-cli contacts list --page-token <token> --json` | Paginate contacts |
-| `frontapp-cli contacts list --fields id,name,email --json` | Select specific columns |
-| `frontapp-cli contacts get <id> --json` | Get contact details |
-| `frontapp-cli contacts create --name "John Doe" --email john@example.com --json` | Create contact |
-| `frontapp-cli contacts create --name "Jane" --email jane@example.com --phone "+1234567890" --json` | Create with phone |
+| `contacts list [--limit N]` | List contacts |
+| `contacts get <id>` | Get contact details |
+| `contacts create --name "Name" --email email` | Create contact |
+| `contacts create --name "Name" --email email --phone "+1234"` | Create with phone |
 
 ### tags
-
 | Command | Description |
 |---------|-------------|
-| `frontapp-cli tags list --json` | List all tags |
-| `frontapp-cli tags list --fields id,name --json` | Select specific columns |
+| `tags list` | List all tags |
+
+### teammates
+| Command | Description |
+|---------|-------------|
+| `teammates list` | List team members |
+| `teammates get <id>` | Get teammate details |
+
+### channels
+| Command | Description |
+|---------|-------------|
+| `channels list` | List all channels (email/SMS addresses) |
+| `channels get <id>` | Get channel details |
+
+### accounts
+| Command | Description |
+|---------|-------------|
+| `accounts list` | List connected accounts |
+| `accounts get <id>` | Get account details |
+
+### events
+| Command | Description |
+|---------|-------------|
+| `events list <cnv-id>` | Activity timeline for a conversation |
+
+### comments
+| Command | Description |
+|---------|-------------|
+| `comments list <cnv-id>` | List internal notes |
+| `comments create <cnv-id> --body "text"` | Add internal note |
 
 ## Global Flags
 
-All commands support: `--json`, `--format <text|json|csv|yaml>`, `--verbose`, `--no-color`, `--no-header`
+All commands support: `--json`, `--format <text|json|csv|yaml>`, `--verbose`, `--no-color`, `--no-header`, `--fields <cols>`, `--limit N`, `--page-token <token>`
+
+## Output Format
+
+With `--json`, responses return: `{ "_results": [...], "_pagination": { "next": "..." } }`
+
+Front uses `_results` (not `data`) for list responses. Pagination via `_pagination.next` URL or `--page-token`.

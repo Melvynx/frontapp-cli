@@ -1,6 +1,8 @@
 # frontapp-cli
 
-CLI for the frontapp API. Made with [api2cli.dev](https://api2cli.dev).
+CLI for the Front API. Made with [api2cli.dev](https://api2cli.dev).
+
+Version 0.2.0 - Now includes teammates, channels, accounts, events, and comments resources.
 
 ## Install
 
@@ -26,7 +28,18 @@ frontapp-cli --help
 
 ## Resources
 
-Run `frontapp-cli --help` to see available resources.
+- **conversations** - Manage customer conversations
+- **inboxes** - Manage team inboxes
+- **messages** - Send and reply to messages
+- **contacts** - Manage customer contacts
+- **tags** - Manage conversation tags
+- **teammates** - View team members
+- **channels** - Manage email/SMS channels
+- **accounts** - Manage connected accounts
+- **events** - View conversation activity timeline
+- **comments** - Add and view internal notes
+
+Run `frontapp-cli <resource> --help` for detailed command options.
 
 ## Global Flags
 

@@ -8,7 +8,7 @@ export const APP_NAME = "frontapp";
 export const APP_CLI = "frontapp-cli";
 
 /** API base URL (replaced during api2cli create) */
-export const BASE_URL = "https://api2.frontapp.com";
+export const BASE_URL = "https://codelynx.api.frontapp.com";
 
 /** Auth type: bearer | api-key | basic | custom */
 export const AUTH_TYPE = "bearer";

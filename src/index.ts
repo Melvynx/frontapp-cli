@@ -7,13 +7,18 @@ import { inboxesResource } from "./resources/inboxes.js";
 import { messagesResource } from "./resources/messages.js";
 import { contactsResource } from "./resources/contacts.js";
 import { tagsResource } from "./resources/tags.js";
+import { teammatesResource } from "./resources/teammates.js";
+import { channelsResource } from "./resources/channels.js";
+import { accountsResource } from "./resources/accounts.js";
+import { eventsResource } from "./resources/events.js";
+import { commentsResource } from "./resources/comments.js";
 
 const program = new Command();
 
 program
   .name("frontapp-cli")
-  .description("CLI for the Front API - manage conversations, inboxes, messages, contacts, and tags")
-  .version("0.1.0")
+  .description("CLI for the Front API - manage conversations, inboxes, messages, contacts, tags, teammates, channels, accounts, events, and comments")
+  .version("0.2.0")
   .option("--json", "Output as JSON", false)
   .option("--format <fmt>", "Output format: text, json, csv, yaml", "text")
   .option("--verbose", "Enable debug logging", false)
@@ -34,5 +39,10 @@ program.addCommand(inboxesResource);
 program.addCommand(messagesResource);
 program.addCommand(contactsResource);
 program.addCommand(tagsResource);
+program.addCommand(teammatesResource);
+program.addCommand(channelsResource);
+program.addCommand(accountsResource);
+program.addCommand(eventsResource);
+program.addCommand(commentsResource);
 
 program.parse();
