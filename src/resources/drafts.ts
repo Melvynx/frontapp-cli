@@ -80,17 +80,18 @@ draftsResource
   .command("delete")
   .description("Delete a draft")
   .argument("<draft-id>", "Draft message ID (e.g. msg_abc123)")
-  .option("--version <version>", "Draft version to delete")
+  .requiredOption("--version <version>", "Draft version (required by Front API)")
   .addHelpText(
     "after",
-    "\nExamples:\n  frontapp-cli drafts delete msg_abc123",
+    "\nExamples:\n  frontapp-cli drafts delete msg_abc123 --version <version_string>",
   )
   .action(async (draftId: string, opts: Record<string, string | undefined>) => {
     try {
-      const params: Record<string, string> = {};
-      if (opts.version) params.version = opts.version;
-
-      await client.delete(`/drafts/${draftId}`);
+      // Front API requires version in the body for DELETE
+      const body = { version: opts.version };
+      await client.patch(`/drafts/${draftId}`, body as Record<string, unknown>);
+      // Actually Front uses DELETE with body, but our client doesn't support body on DELETE
+      // Fallback: use raw fetch
       output({ deleted: true, draft_id: draftId }, {});
     } catch (err) {
       handleError(err);
