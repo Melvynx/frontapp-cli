@@ -12,6 +12,7 @@ import { channelsResource } from "./resources/channels.js";
 import { accountsResource } from "./resources/accounts.js";
 import { eventsResource } from "./resources/events.js";
 import { commentsResource } from "./resources/comments.js";
+import { draftsResource } from "./resources/drafts.js";
 
 const program = new Command();
 
@@ -44,5 +45,6 @@ program.addCommand(channelsResource);
 program.addCommand(accountsResource);
 program.addCommand(eventsResource);
 program.addCommand(commentsResource);
+program.addCommand(draftsResource);
 
 program.parse();
