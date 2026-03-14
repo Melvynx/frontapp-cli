@@ -14,7 +14,6 @@ commentsResource
   .option("--limit <n>", "Max results per page")
   .option("--page-token <token>", "Pagination token for next page")
   .option("--fields <cols>", "Comma-separated columns to display")
-  .option("--json", "Output as JSON")
   .option("--format <fmt>", "Output format: text, json, csv, yaml")
   .addHelpText(
     "after",
@@ -30,12 +29,11 @@ commentsResource
         _results: unknown[];
       };
       output(data._results, {
-        json: opts.json === "" || opts.json === "true" ? true : !!opts.json,
         format: opts.format,
         fields: opts.fields?.split(","),
       });
     } catch (err) {
-      handleError(err, !!opts.json);
+      handleError(err);
     }
   });
 
@@ -46,7 +44,6 @@ commentsResource
   .argument("<conversation_id>", "Conversation ID (e.g. cnv_abc123)")
   .option("--body <text>", "Comment body text (required)")
   .option("--author <id>", "Author teammate ID (optional)")
-  .option("--json", "Output as JSON")
   .addHelpText(
     "after",
     '\nExamples:\n  frontapp-cli comments create cnv_abc123 --body "Internal note"\n  frontapp-cli comments create cnv_abc123 --body "Follow up needed" --author tea_123',
@@ -66,8 +63,8 @@ commentsResource
       }
 
       const data = await client.post(`/conversations/${conversationId}/comments`, body);
-      output(data ?? { created: true, conversation_id: conversationId }, { json: !!opts.json });
+      output(data ?? { created: true, conversation_id: conversationId }, {  });
     } catch (err) {
-      handleError(err, !!opts.json);
+      handleError(err);
     }
   });

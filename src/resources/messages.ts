@@ -14,7 +14,6 @@ messagesResource
   .option("--limit <n>", "Max results per page")
   .option("--page-token <token>", "Pagination token for next page")
   .option("--fields <cols>", "Comma-separated columns to display")
-  .option("--json", "Output as JSON")
   .option("--format <fmt>", "Output format: text, json, csv, yaml")
   .addHelpText(
     "after",
@@ -31,12 +30,11 @@ messagesResource
         params,
       )) as { _results: unknown[] };
       output(data._results, {
-        json: opts.json === "" || opts.json === "true" ? true : !!opts.json,
         format: opts.format,
         fields: opts.fields?.split(","),
       });
     } catch (err) {
-      handleError(err, !!opts.json);
+      handleError(err);
     }
   });
 
@@ -48,7 +46,6 @@ messagesResource
   .requiredOption("--to <recipients>", "Comma-separated recipient email addresses")
   .requiredOption("--body <body>", "Message body (HTML supported)")
   .option("--subject <subject>", "Email subject line")
-  .option("--json", "Output as JSON")
   .addHelpText(
     "after",
     '\nExamples:\n  frontapp-cli messages send cha_abc123 --to user@example.com --body "Hello!"\n  frontapp-cli messages send cha_abc123 --to a@b.com,c@d.com --subject "Hi" --body "<p>Hello</p>"',
@@ -64,9 +61,9 @@ messagesResource
       if (opts.subject) body.subject = opts.subject;
 
       const data = await client.post(`/channels/${channelId}/messages`, body);
-      output(data ?? { sent: true }, { json: !!opts.json });
+      output(data ?? { sent: true }, {  });
     } catch (err) {
-      handleError(err, !!opts.json);
+      handleError(err);
     }
   });
 
@@ -77,7 +74,6 @@ messagesResource
   .argument("<conversation-id>", "Conversation ID (e.g. cnv_abc123)")
   .requiredOption("--body <body>", "Reply body (HTML supported)")
   .option("--type <type>", "Reply type: reply, note", "reply")
-  .option("--json", "Output as JSON")
   .addHelpText(
     "after",
     '\nExamples:\n  frontapp-cli messages reply cnv_abc123 --body "Thanks for reaching out!"\n  frontapp-cli messages reply cnv_abc123 --body "Internal note" --type note',
@@ -101,9 +97,8 @@ messagesResource
 
       const data = await client.post(endpoint, payload);
       output(data ?? { replied: true, conversation_id: conversationId, type: replyType }, {
-        json: !!opts.json,
       });
     } catch (err) {
-      handleError(err, !!opts.json);
+      handleError(err);
     }
   });

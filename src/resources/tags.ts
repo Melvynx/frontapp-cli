@@ -11,7 +11,6 @@ tagsResource
   .command("list")
   .description("List all tags")
   .option("--fields <cols>", "Comma-separated columns to display")
-  .option("--json", "Output as JSON")
   .option("--format <fmt>", "Output format: text, json, csv, yaml")
   .addHelpText(
     "after",
@@ -21,11 +20,10 @@ tagsResource
     try {
       const data = (await client.get("/tags")) as { _results: unknown[] };
       output(data._results, {
-        json: opts.json === "" || opts.json === "true" ? true : !!opts.json,
         format: opts.format,
         fields: opts.fields?.split(","),
       });
     } catch (err) {
-      handleError(err, !!opts.json);
+      handleError(err);
     }
   });

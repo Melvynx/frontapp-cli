@@ -13,7 +13,6 @@ contactsResource
   .option("--limit <n>", "Max results per page")
   .option("--page-token <token>", "Pagination token for next page")
   .option("--fields <cols>", "Comma-separated columns to display")
-  .option("--json", "Output as JSON")
   .option("--format <fmt>", "Output format: text, json, csv, yaml")
   .addHelpText(
     "after",
@@ -29,12 +28,11 @@ contactsResource
         _results: unknown[];
       };
       output(data._results, {
-        json: opts.json === "" || opts.json === "true" ? true : !!opts.json,
         format: opts.format,
         fields: opts.fields?.split(","),
       });
     } catch (err) {
-      handleError(err, !!opts.json);
+      handleError(err);
     }
   });
 
@@ -43,7 +41,6 @@ contactsResource
   .command("get")
   .description("Get a specific contact by ID")
   .argument("<id>", "Contact ID (e.g. crd_abc123)")
-  .option("--json", "Output as JSON")
   .option("--format <fmt>", "Output format: text, json, csv, yaml")
   .addHelpText(
     "after",
@@ -52,9 +49,9 @@ contactsResource
   .action(async (id: string, opts: { json?: boolean; format?: string }) => {
     try {
       const data = await client.get(`/contacts/${id}`);
-      output(data, { json: opts.json, format: opts.format });
+      output(data, { format: opts.format });
     } catch (err) {
-      handleError(err, opts.json);
+      handleError(err);
     }
   });
 
@@ -65,7 +62,6 @@ contactsResource
   .requiredOption("--name <name>", "Contact display name")
   .option("--email <email>", "Contact email address")
   .option("--phone <phone>", "Contact phone number")
-  .option("--json", "Output as JSON")
   .addHelpText(
     "after",
     '\nExamples:\n  frontapp-cli contacts create --name "John Doe" --email john@example.com\n  frontapp-cli contacts create --name "Jane" --email jane@example.com --phone "+1234567890"',
@@ -82,8 +78,8 @@ contactsResource
       if (handles.length > 0) body.handles = handles;
 
       const data = await client.post("/contacts", body);
-      output(data ?? { created: true }, { json: !!opts.json });
+      output(data ?? { created: true }, {  });
     } catch (err) {
-      handleError(err, !!opts.json);
+      handleError(err);
     }
   });

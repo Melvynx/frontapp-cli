@@ -14,7 +14,6 @@ eventsResource
   .option("--limit <n>", "Max results per page")
   .option("--page-token <token>", "Pagination token for next page")
   .option("--fields <cols>", "Comma-separated columns to display")
-  .option("--json", "Output as JSON")
   .option("--format <fmt>", "Output format: text, json, csv, yaml")
   .addHelpText(
     "after",
@@ -30,11 +29,10 @@ eventsResource
         _results: unknown[];
       };
       output(data._results, {
-        json: opts.json === "" || opts.json === "true" ? true : !!opts.json,
         format: opts.format,
         fields: opts.fields?.split(","),
       });
     } catch (err) {
-      handleError(err, !!opts.json);
+      handleError(err);
     }
   });

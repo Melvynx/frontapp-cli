@@ -13,7 +13,6 @@ channelsResource
   .option("--limit <n>", "Max results per page")
   .option("--page-token <token>", "Pagination token for next page")
   .option("--fields <cols>", "Comma-separated columns to display")
-  .option("--json", "Output as JSON")
   .option("--format <fmt>", "Output format: text, json, csv, yaml")
   .addHelpText(
     "after",
@@ -29,12 +28,11 @@ channelsResource
         _results: unknown[];
       };
       output(data._results, {
-        json: opts.json === "" || opts.json === "true" ? true : !!opts.json,
         format: opts.format,
         fields: opts.fields?.split(","),
       });
     } catch (err) {
-      handleError(err, !!opts.json);
+      handleError(err);
     }
   });
 
@@ -43,7 +41,6 @@ channelsResource
   .command("get")
   .description("Get a specific channel by ID")
   .argument("<id>", "Channel ID (e.g. cha_abc123)")
-  .option("--json", "Output as JSON")
   .option("--format <fmt>", "Output format: text, json, csv, yaml")
   .addHelpText(
     "after",
@@ -52,8 +49,8 @@ channelsResource
   .action(async (id: string, opts: { json?: boolean; format?: string }) => {
     try {
       const data = await client.get(`/channels/${id}`);
-      output(data, { json: opts.json, format: opts.format });
+      output(data, { format: opts.format });
     } catch (err) {
-      handleError(err, opts.json);
+      handleError(err);
     }
   });

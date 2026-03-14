@@ -11,7 +11,6 @@ inboxesResource
   .command("list")
   .description("List all inboxes")
   .option("--fields <cols>", "Comma-separated columns to display")
-  .option("--json", "Output as JSON")
   .option("--format <fmt>", "Output format: text, json, csv, yaml")
   .addHelpText(
     "after",
@@ -21,12 +20,11 @@ inboxesResource
     try {
       const data = (await client.get("/inboxes")) as { _results: unknown[] };
       output(data._results, {
-        json: opts.json === "" || opts.json === "true" ? true : !!opts.json,
         format: opts.format,
         fields: opts.fields?.split(","),
       });
     } catch (err) {
-      handleError(err, !!opts.json);
+      handleError(err);
     }
   });
 
@@ -35,7 +33,6 @@ inboxesResource
   .command("get")
   .description("Get a specific inbox by ID")
   .argument("<id>", "Inbox ID (e.g. inb_abc123)")
-  .option("--json", "Output as JSON")
   .option("--format <fmt>", "Output format: text, json, csv, yaml")
   .addHelpText(
     "after",
@@ -44,9 +41,9 @@ inboxesResource
   .action(async (id: string, opts: { json?: boolean; format?: string }) => {
     try {
       const data = await client.get(`/inboxes/${id}`);
-      output(data, { json: opts.json, format: opts.format });
+      output(data, { format: opts.format });
     } catch (err) {
-      handleError(err, opts.json);
+      handleError(err);
     }
   });
 
@@ -59,7 +56,6 @@ inboxesResource
   .option("--limit <n>", "Max results per page")
   .option("--page-token <token>", "Pagination token for next page")
   .option("--fields <cols>", "Comma-separated columns to display")
-  .option("--json", "Output as JSON")
   .option("--format <fmt>", "Output format: text, json, csv, yaml")
   .addHelpText(
     "after",
@@ -81,11 +77,10 @@ inboxesResource
       }
 
       output(results, {
-        json: opts.json === "" || opts.json === "true" ? true : !!opts.json,
         format: opts.format,
         fields: opts.fields?.split(","),
       });
     } catch (err) {
-      handleError(err, !!opts.json);
+      handleError(err);
     }
   });
